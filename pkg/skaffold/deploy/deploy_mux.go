@@ -159,7 +159,11 @@ func (m DeployerMux) Dependencies() ([]string, error) {
 }
 
 func (m DeployerMux) Cleanup(ctx context.Context, w io.Writer, dryRun bool) error {
-	for _, deployer := range m.deployers {
+	revDeployers := m.deployers
+	for i, j := 0, len(revDeployers)-1; i < j; i, j = i+1, j-1 {
+		revDeployers[i], revDeployers[j] = revDeployers[j], revDeployers[i]
+	}
+	for _, deployer := range revDeployers {
 		ctx, endTrace := instrumentation.StartTrace(ctx, "Cleanup")
 		if dryRun {
 			output.Yellow.Fprintln(w, "Following resources would be deleted:")
